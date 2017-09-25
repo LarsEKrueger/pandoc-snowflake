@@ -1,0 +1,87 @@
+<html>
+
+<style>
+.menu {
+  background-color: #f1f1f1;
+  padding: 8px 0px;
+}
+
+.menu span {
+  display:inline;
+  text-align: center;
+  color: #000;
+  padding: 8px 16px;
+}
+
+.menu span:hover {
+ background-color: #555;
+    color: white;
+}
+
+div.body {
+  display: none;
+}
+
+div.bodyvis {
+  background-color: #f9f9f9;
+  padding-left: 8px;
+}
+
+
+</style>
+
+  <script>
+function selectMenu(name,ind)
+{
+  var menu=document.getElementById(name);
+  var nChildren=menu.children.length;
+  for (var iChild=0; iChild<nChildren;++iChild)
+  {
+    var menuBody=document.getElementById(name+"." + iChild);
+    menuBody.className="body";
+  }
+  var activeBody=document.getElementById(name+"." + ind);
+  activeBody.className="bodyvis";
+}
+
+  </script>
+
+  <body>
+
+    <span class="menu" id="topmenu">
+      <span onclick="selectMenu('topmenu',0)">Step 1</span>
+      <span onclick="selectMenu('topmenu',1)">Step 2</span>
+      <span onclick="selectMenu('topmenu',2)">Step 3</span>
+    </span>
+
+    <div id="topmenu.0" class="bodyvis">
+      <h1>Body 1</h1>
+      <p>laskdfj ;lasdjf ;lkasdjf ;lsakdjf; lskajf; lksjdfl ksajlkweuy4
+      rois;l kdfj.slkdjf lsakdj f;laskdjf ;lsak</p>
+      <p>laskdfj ;lasdjf ;lkasdjf ;lsakdjf; lskajf; lksjdfl ksajlkweuy4
+      rois;l kdfj.slkdjf lsakdj f;laskdjf ;lsak lksdfj noaksdjf aosidu
+      foasiudf;oisu; ofiusa;oiuf; aoiuf;ozsd lsadhflksdhfkl sdfk lsdkjahf
+      lksdfh lksajd</p>
+    </div>
+
+    <div id="topmenu.1" class="body">
+      <h1>Body 2</h1>
+
+      <span class="menu" id="submenu2">
+        <span onclick="selectMenu('submenu2',0)">Step 2.1</span>
+        <span onclick="selectMenu('submenu2',1)">Step 2.2</span>
+        <span onclick="selectMenu('submenu2',2)">Step 2.3</span>
+      </span>
+      <div id="submenu2.0" class="bodyvis"><h2>Body 2.1</h2></div>
+      <div id="submenu2.1" class="body"><h2>Body 2.2</h2>   </div>
+      <div id="submenu2.2" class="body"><h2>Body 2.3</h2>   </div>
+
+      <h1>Body 3</h1>
+      <h1>Body 4</h1>
+
+    </div>
+    <div id="topmenu.2" class="body"><h1>Body 3</h1></div>
+
+  </body>
+
+</html>
