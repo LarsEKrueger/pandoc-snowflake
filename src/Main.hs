@@ -101,11 +101,77 @@ rebuildTree stack@((tos@(Sec pd _ _ _ _):brothers):bos) (sec@(Sec d _ _ _ _) : e
 
 rebuildTree _ _ = undefined -- These cases should not happen.
 
+flatten :: Element -> [Block]
+flatten (Blk b) = [b]
+flatten (Sec depth prefix attr headline bodyelem) = Header depth attr headline : concatMap flatten bodyelem
+
+mbFlatten :: Maybe Element -> [Block]
+mbFlatten = maybe [] flatten
+
+findSection :: [Element] -> [String] -> Maybe Element
+findSection _ [] = Nothing
+findSection [] _ = Nothing
+findSection (Blk _ : es ) needle = findSection es needle
+findSection (s@(Sec _ _ (id,_,_)  _ sub) : es ) needles@[needle1] =
+  if id == needle1
+     then Just s
+     else findSection es needles
+findSection (s@(Sec _ _ (id,_,_)  _ sub) : es ) (needle1:needles) =
+  if id == needle1
+     then Just s
+     else case findSection sub needles of
+               Just r -> Just r
+               Nothing -> findSection es needles
+
+makeMainMenu :: [Element] -> [Block]
+makeMainMenu db =
+  Div (menuId,["menubar"],[])
+    (map fst sections)
+  : map snd sections
+  where
+  menuId = "menubar"
+  sections = map (mkSection menuId db) $ zip [0..]
+    [ ("Overview", secOverview)
+    , ("Character Synopsis", secCharSyn)
+    , ("Four Page Summary", secFourPage)
+    , ("Character Details", secCharDet)
+    , ("Scenes", secScenes)
+    ]
+
+secOverview :: [Element] -> Maybe Block
+secOverview db = Nothing
+
+secCharSyn :: [Element] -> Maybe Block
+secCharSyn db = Nothing
+
+secFourPage :: [Element] -> Maybe Block
+secFourPage db = Nothing
+
+secCharDet :: [Element] -> Maybe Block
+secCharDet db = Nothing
+
+secScenes :: [Element] -> Maybe Block
+secScenes db = Nothing
+
+mkSection :: String -> [Element] -> (Int,(String,[Element]->Maybe Block)) -> (Block,Block)
+mkSection id db (ind,(headline,mkContent)) =
+  ( RawBlock (Format "HTML") $ "<span onclick=\"selectMenu('" ++ id ++ "'," ++ show ind ++ ")\">" ++ headline ++ "</span>"
+  , Div ( id ++ "." ++ show ind, [ if ind == 0 then "bodyshow" else "bodyhide"], [])
+    [ Header 1 ("",[],[]) [Str headline]
+    ]
+  )
+
 main :: IO ()
 main = do
   txt <- B.getContents
   let input@(Pandoc inMeta inBlocks) = (either error id $ eitherDecode' txt) :: Pandoc
-      hierarchy = rebuildTree [] $ hierarchicalize inBlocks
-  putStrLn $ ppShow hierarchy
+      db = rebuildTree [] $ hierarchicalize inBlocks
+      outBlocks = makeMainMenu db ++
+                  mbFlatten ( findSection db ["timeline"]) ++
+                  mbFlatten ( findSection db ["chapters"])
 
-  -- B.putStr $ encode $ Pandoc inMeta outBlocks
+  -- putStrLn $ ppShow db
+
+
+
+  B.putStr $ encode $ Pandoc inMeta outBlocks
