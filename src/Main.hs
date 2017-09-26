@@ -30,6 +30,7 @@ import Text.Pandoc.Shared
 import Text.Pandoc.Definition
 import qualified Data.ByteString.Lazy as B
 import Data.Aeson
+import Data.Maybe
 
 import Text.Show.Pretty
 
@@ -116,12 +117,10 @@ findSection (s@(Sec _ _ (id,_,_)  _ sub) : es ) needles@[needle1] =
   if id == needle1
      then Just s
      else findSection es needles
-findSection (s@(Sec _ _ (id,_,_)  _ sub) : es ) (needle1:needles) =
+findSection (s@(Sec _ _ (id,_,_)  _ sub) : es ) allNeedles@(needle1:needles) =
   if id == needle1
-     then Just s
-     else case findSection sub needles of
-               Just r -> Just r
-               Nothing -> findSection es needles
+     then findSection sub needles
+     else findSection es allNeedles
 
 makeMainMenu :: [Element] -> [Block]
 makeMainMenu db =
@@ -138,28 +137,45 @@ makeMainMenu db =
     , ("Scenes", secScenes)
     ]
 
-secOverview :: [Element] -> Maybe Block
-secOverview db = Nothing
+renderSection :: Element -> String -> [Block]
+renderSection (Blk _) _ = []
+renderSection (Sec _ _ _ _ cont) headline =
+  Header 3 ("",[],[]) [Str headline]
+  : concatMap flatten cont
 
-secCharSyn :: [Element] -> Maybe Block
+secOverview :: [Element] -> Maybe [Block]
+secOverview db = do
+  premise <- findSection db ["design","premise"]
+  intConf <- findSection db ["design","internal-conflict"]
+  extConf <- findSection db ["design","external-conflict"]
+  twist <- findSection db ["design","twist"]
+  onePage <- findSection db ["design","one-page-summary"]
+  return
+    $ Table [] [AlignLeft,AlignLeft] [0.0,0.0] []
+      [[renderSection premise "Premise", renderSection intConf "Internal Conflict"]
+      ,[renderSection twist "Twist",     renderSection extConf "External Conflict"]
+      ]
+    : renderSection onePage "One Page Summary"
+
+secCharSyn :: [Element] -> Maybe [Block]
 secCharSyn db = Nothing
 
-secFourPage :: [Element] -> Maybe Block
+secFourPage :: [Element] -> Maybe [Block]
 secFourPage db = Nothing
 
-secCharDet :: [Element] -> Maybe Block
+secCharDet :: [Element] -> Maybe [Block]
 secCharDet db = Nothing
 
-secScenes :: [Element] -> Maybe Block
+secScenes :: [Element] -> Maybe [Block]
 secScenes db = Nothing
 
-mkSection :: String -> [Element] -> (Int,(String,[Element]->Maybe Block)) -> (Block,Block)
+mkSection :: String -> [Element] -> (Int,(String,[Element]->Maybe [Block])) -> (Block,Block)
 mkSection id db (ind,(headline,mkContent)) =
   ( RawBlock (Format "HTML") $ "<span onclick=\"selectMenu('" ++ id ++ "'," ++ show ind ++ ")\">" ++ headline ++ "</span>"
-  , Div ( id ++ "." ++ show ind, [ if ind == 0 then "bodyshow" else "bodyhide"], [])
-    [ Header 1 ("",[],[]) [Str headline]
-    ]
+  , Div ( id ++ "." ++ show ind, [ if ind == 0 then "bodyshow" else "bodyhide"], []) secCont
   )
+  where
+  secCont = fromMaybe [Plain [Str "content generation failure"]] $ mkContent db
 
 main :: IO ()
 main = do
