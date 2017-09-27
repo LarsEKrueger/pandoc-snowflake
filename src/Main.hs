@@ -24,37 +24,37 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 module Main
 where
 
-import Text.Pandoc.JSON as J
-import Text.Pandoc.Walk
-import Text.Pandoc.Definition
-import Text.Pandoc.Shared
-import qualified Data.ByteString.Lazy as B
-import Data.Aeson
+import           Data.Aeson
+import qualified Data.ByteString.Lazy   as B
+import           Text.Pandoc.Definition
+import           Text.Pandoc.JSON       as J
+import           Text.Pandoc.Shared
+import           Text.Pandoc.Walk
 
-import Snowflake.Database
-import Snowflake.Menu
-import Snowflake.Content
-import Snowflake.Tab.Overview
+import           Snowflake.Content
+import           Snowflake.Database
+import           Snowflake.Menu
+import           Snowflake.Tab.Overview
 
 makeMainMenu :: [Element] -> [Block]
 makeMainMenu db = makeMenu db "mainmenu"
-    [ ("Overview", tabOverview)
-    , ("Character Synopsis", tabCharSyn)
-    , ("Four Page Summary", tabFourPage)
-    , ("Character Details", tabCharDet)
-    , ("Scenes", tabScenes)
+    [ ("Overview", tabOverview db)
+    , ("Character Synopsis", tabCharSyn db)
+    , ("Four Page Summary", tabFourPage db)
+    , ("Character Details", tabCharDet db)
+    , ("Scenes", tabScenes db)
     ]
 
-tabCharSyn :: [Element] -> Maybe [Block]
+tabCharSyn :: Database -> MenuContent
 tabCharSyn db = Nothing
 
-tabFourPage :: [Element] -> Maybe [Block]
+tabFourPage :: [Element] -> MenuContent
 tabFourPage db = Nothing
 
-tabCharDet :: [Element] -> Maybe [Block]
+tabCharDet :: [Element] -> MenuContent
 tabCharDet db = Nothing
 
-tabScenes :: [Element] -> Maybe [Block]
+tabScenes :: [Element] -> MenuContent
 tabScenes db = Nothing
 
 main :: IO ()

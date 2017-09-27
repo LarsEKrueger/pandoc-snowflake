@@ -27,18 +27,22 @@ module Snowflake.Database
 , flattenElement
 , flattenMaybeElement
 , findSection
+, dbgFindSection
 , secContent
+, secHeadline
 ) where
 
-import Text.Pandoc.Definition
-import Text.Pandoc.Shared
+import           Data.List
+
+import           Text.Pandoc.Definition
+import           Text.Pandoc.Shared
 
 type Database = [Element]
 
 -- | Check if an Element is a Blk. Required for filtering blocks and sections.
 isBlk :: Element -> Bool
 isBlk (Blk _) = True
-isBlk _ = False
+isBlk _       = False
 
 -- | Stack of lists of Elements. Each item on the stack is a list of
 -- semi-processed sections.
@@ -49,7 +53,7 @@ type Stack = [[Element]]
 -- the current top of stack item has (e.g. depth=4). This function is
 -- concerned with stopping criteria only.
 unwind :: Stack -> [Element] -> [Element]
-unwind [] [] = []
+unwind [] []    = []
 unwind [tos] [] = reverse tos
 unwind stack [] = unwind (unwind1 stack) []
 unwind stack es = rebuildTree (unwind1 stack) es
@@ -124,15 +128,31 @@ findSection _ [] = Nothing
 findSection [] _ = Nothing
 findSection (Blk _ : es ) needle = findSection es needle
 findSection (s@(Sec _ _ (id,_,_)  _ sub) : es ) needles@[needle1] =
-  if id == needle1
+  if needle1 `isPrefixOf` id
      then Just s
      else findSection es needles
 findSection (s@(Sec _ _ (id,_,_)  _ sub) : es ) allNeedles@(needle1:needles) =
-  if id == needle1
+  if needle1 `isPrefixOf` id
      then findSection sub needles
      else findSection es allNeedles
 
+-- | Same as findSection, but returns an error message instead of failing
+dbgFindSection :: Database -> [String] -> Maybe Element
+dbgFindSection db needles =
+  case findSection db needles of
+       Nothing -> Just errSec
+       x       -> x
+  where
+  errSec = Sec 0 [] ("",[],[]) []
+             [ Blk (Para $ normalizeInlines [ Str errMsg ])]
+  errMsg = "Search key not found: " ++ intercalate ", " needles
+
+
 secContent :: Element -> [Element]
-secContent (Blk _) = []
+secContent (Blk _)            = []
 secContent (Sec _ _ _ _ cont) = cont
+
+secHeadline :: Element -> [Inline]
+secHeadline (Blk _)                = []
+secHeadline (Sec _ _ _ headline _) = headline
 

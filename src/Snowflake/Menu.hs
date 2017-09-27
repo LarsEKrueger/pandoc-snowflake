@@ -1,14 +1,17 @@
 module Snowflake.Menu
 ( makeMenu
+, MenuContent
 ) where
 
-import Data.Maybe
+import           Data.Maybe
 
-import Text.Pandoc.Definition
+import           Text.Pandoc.Definition
 
-import Snowflake.Database
+import           Snowflake.Database
 
-makeMenu :: Database -> String -> [(String,Database->Maybe [Block])] -> [Block]
+type MenuContent = Maybe [Block]
+
+makeMenu :: Database -> String -> [(String,MenuContent)] -> [Block]
 makeMenu db menuId sectionGenerators =
   Div (menuId,["menubar"],[])
     (map fst sections)
@@ -16,10 +19,21 @@ makeMenu db menuId sectionGenerators =
   where
   sections = map (mkSection menuId db) $ zip [0..] sectionGenerators
 
-mkSection :: String -> Database -> (Int,(String,Database->Maybe [Block])) -> (Block,Block)
-mkSection id db (ind,(headline,mkContent)) =
-  ( RawBlock (Format "HTML") $ "<span onclick=\"selectMenu('" ++ id ++ "'," ++ show ind ++ ")\">" ++ headline ++ "</span>"
-  , Div ( id ++ "." ++ show ind, [ if ind == 0 then "bodyshow" else "bodyhide"], []) secCont
+mkSection :: String -> Database -> (Int,(String,MenuContent)) -> (Block,Block)
+mkSection id db (ind,(headline,content)) =
+  ( RawBlock (Format "HTML") menuItemMarkup
+  , Div ( divId, [ divClass ], []) secCont
   )
   where
-  secCont = fromMaybe [Plain [Str "content generation failure"]] $ mkContent db
+  indStr = show ind
+  divId = id ++ "." ++ indStr
+  divClass = if ind == 0 then "bodyshow" else "bodyhide"
+  menuItemMarkup =
+    "<span onclick=\"selectMenu('"
+    ++ id
+    ++ "',"
+    ++ indStr
+    ++ ")\">"
+    ++ headline
+    ++ "</span>"
+  secCont = fromMaybe [Plain [Str "content generation failure"]] content
