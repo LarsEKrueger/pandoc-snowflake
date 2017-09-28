@@ -35,6 +35,7 @@ import           Snowflake.Content
 import           Snowflake.Database
 import           Snowflake.Menu
 import           Snowflake.Tab.Overview
+import           Snowflake.Tab.Synopsis
 
 makeMainMenu :: [Element] -> [Block]
 makeMainMenu db = makeMenu db "mainmenu"
@@ -44,9 +45,6 @@ makeMainMenu db = makeMenu db "mainmenu"
     , ("Character Details", tabCharDet db)
     , ("Scenes", tabScenes db)
     ]
-
-tabCharSyn :: Database -> MenuContent
-tabCharSyn db = Nothing
 
 tabFourPage :: [Element] -> MenuContent
 tabFourPage db = Nothing
