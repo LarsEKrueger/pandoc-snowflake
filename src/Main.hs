@@ -34,6 +34,7 @@ import           Text.Pandoc.Walk
 import           Snowflake.Content
 import           Snowflake.Database
 import           Snowflake.Menu
+import           Snowflake.Tab.FourPage
 import           Snowflake.Tab.Overview
 import           Snowflake.Tab.Synopsis
 
@@ -45,9 +46,6 @@ makeMainMenu db = makeMenu db "mainmenu"
     , ("Character Details", tabCharDet db)
     , ("Scenes", tabScenes db)
     ]
-
-tabFourPage :: [Element] -> MenuContent
-tabFourPage db = Nothing
 
 tabCharDet :: [Element] -> MenuContent
 tabCharDet db = Nothing

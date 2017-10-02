@@ -30,6 +30,7 @@ module Snowflake.Database
 , dbgFindSection
 , secContent
 , secHeadline
+, isBlk
 ) where
 
 import           Data.List
