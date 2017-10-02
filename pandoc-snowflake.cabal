@@ -17,7 +17,12 @@ cabal-version:       >=1.10
 
 executable pandoc-snowflake
   main-is:             Main.hs
-  -- other-modules:       
+  other-modules:       Snowflake.Content,
+                       Snowflake.Database,
+                       Snowflake.Menu,
+                       Snowflake.Tab.Overview,
+                       Snowflake.Tab.Synopsis,
+                       Snowflake.Tab.FourPage
   -- other-extensions:    
   build-depends:       base >=4.9 && <4.10,
                        pandoc-types >= 1.16 && < 1.18,
