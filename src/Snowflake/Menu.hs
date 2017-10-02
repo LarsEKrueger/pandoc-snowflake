@@ -28,8 +28,11 @@ mkSection id db (ind,(headline,content)) =
   indStr = show ind
   divId = id ++ "." ++ indStr
   divClass = if ind == 0 then "bodyshow" else "bodyhide"
+  spanClass = if ind == 0 then "select" else ""
   menuItemMarkup =
-    "<span onclick=\"selectMenu('"
+    "<span class=\""
+    ++ spanClass
+    ++ "\" onclick=\"selectMenu('"
     ++ id
     ++ "',"
     ++ indStr
