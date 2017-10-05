@@ -1,6 +1,7 @@
 module Snowflake.Content
 ( titledSection
 , inlinesToString
+, stripSingleParagraph
 ) where
 
 import           Text.Pandoc.Definition
@@ -30,3 +31,7 @@ itos Space           = " "
 itos SoftBreak       = " "
 itos LineBreak       = " "
 itos _               = ""
+
+stripSingleParagraph :: [Block] -> [Block]
+stripSingleParagraph [Para x] = [Plain x]
+stripSingleParagraph x        = x
