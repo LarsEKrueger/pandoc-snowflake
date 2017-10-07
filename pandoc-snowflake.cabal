@@ -23,6 +23,7 @@ executable pandoc-snowflake
                        Snowflake.Tab.Overview,
                        Snowflake.Tab.Synopsis,
                        Snowflake.Tab.Details,
+                       Snowflake.Tab.Scenes,
                        Snowflake.Tab.FourPage
   -- other-extensions:    
   build-depends:       base >=4.9 && <4.10,
