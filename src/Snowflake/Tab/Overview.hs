@@ -20,7 +20,7 @@ tabOverview db = do
   charBase <- findSection db ["design","characters"]
   return $
     (
-    Table [] [AlignLeft,AlignLeft] [0.0,0.0] []
+    Table [] [AlignLeft,AlignLeft] [0.5,0.5] []
       [[titledSection 3 premise "Premise", titledSection 3 intConf "Internal Conflict"]
       ,[titledSection 3 twist "Twist",     titledSection 3 extConf "External Conflict"]
       ]
@@ -47,7 +47,7 @@ contentCharBase char =
     oneParagraph <- dbgFindSection db ["one-paragraph-summary"]
 
     return
-      ( Table [] [AlignLeft,AlignLeft] [0.0,0.0] []
+      ( Table [] [AlignLeft,AlignLeft] [0.5,0.5] []
           [[titledSection 4 role "Role"
            ,titledSection 4 oneSentence "One-sentence Summary"]
           ,[titledSection 4 goal "Goal"

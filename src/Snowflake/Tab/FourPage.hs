@@ -18,7 +18,7 @@ tabFourPage db = do
   fourPage <- findSection db ["design", "four-page-summary"]
 
   return [
-    Table [] [AlignLeft,AlignLeft] [0.0,0.0] []
+    Table [] [AlignLeft,AlignLeft] [0.5,0.5] []
       (rows onePage fourPage)
     ]
   where

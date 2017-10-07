@@ -16,7 +16,7 @@ tabScenes db = do
   fourPage <- findSection db ["design", "four-page-summary"]
   scenes <- findSection db ["design", "scenes"]
   return [
-    Table [] [AlignLeft,AlignLeft] [0.0,0.0] []
+    Table [] [AlignLeft,AlignLeft] [0.5,0.5] []
       (rows fourPage scenes)
     ]
   where
