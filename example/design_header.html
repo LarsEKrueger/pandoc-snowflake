@@ -1,0 +1,67 @@
+<style>
+.menubar {
+  background-color: #f1f1f1;
+  padding: 8px 0px;
+}
+
+.menubar span {
+  display:inline;
+  text-align: center;
+  color: #000;
+  padding: 8px 16px;
+}
+
+.menubar span:hover {
+ background-color: #555;
+    color: white;
+}
+
+.menubar span.select {
+ background-color: #333;
+    color: white;
+}
+
+div.bodyhide {
+  display: none;
+}
+
+div.bodyshow {
+  background-color: #f9f9f9;
+  padding-left: 8px;
+}
+
+table tbody {
+  vertical-align: top;
+}
+
+table tbody td p:first-child {
+  margin-top: 0px;
+}
+
+.charDetTab .odd {
+    background: #fff;
+  }
+
+.charDetTab .even {
+    background: #eee;
+  }
+
+</style>
+
+<script>
+function selectMenu(name,ind)
+{
+  var menu=document.getElementById(name);
+  var nChildren=menu.children.length;
+  for (var iChild=0; iChild<nChildren;++iChild)
+  {
+    var menuBody=document.getElementById(name+"." + iChild);
+    menuBody.className="bodyhide";
+    menu.children[iChild].className="";
+  }
+  var activeBody=document.getElementById(name+"." + ind);
+  activeBody.className="bodyshow";
+  menu.children[ind].className="select";
+}
+
+</script>
