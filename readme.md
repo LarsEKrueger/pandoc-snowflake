@@ -65,10 +65,10 @@ The document is expected to contain three top-level headings (level 1):
 # Chapters
 ```
 
-The header *Design* will contain the Snowflake database, *Timeline* and
-*Chapters* are copied to the output as is and are meant to show the time line
-(using `pandoc-narrative-charts`) of the story and the actual written chapters
-(using `pandoc-vimviki`). Any meta data (i.e. title and author) are preserved.
+The header *Design* will contain the Snowflake database. All other headers at
+this level (i.e. *Timeline* and *Chapters*) are copied to the output in the
+same order they appear in. Any meta data (i.e. title and author) are
+preserved. Any matter before the first header will be discarded.
 
 ## The Snowflake Database
 
@@ -180,6 +180,9 @@ filled.
 
 ## Step 6: Four Page Summary
 
+Each level-3 header in this section is matched with the respective paragraph
+from step 4 and rendered as a table.
+
 ## Step 7: Character Details
 
 Again, provide one level-3 section per character and name them appropriately.
@@ -214,7 +217,29 @@ red
 No row will be included in the table for *Current address* as the body is
 empty.
 
+The [template](example/design.md) contains the fields listed
+[here](https://www.epiguide.com/ep101/writing/charchart.html).
+
 ## Step 8: Scenes
+
+For each level-3 header of step 6, provide the respective level-3 header here.
+For each scene in the act represented by the level-3 header, provide a level-4
+header. The title of the header should be the character from who's point of
+view, this scene is shown.
+
+```markdown
+## Scenes
+
+### Act 1
+
+#### Little Girl
+Little Girl's mother packs a basket of cake and wine, before she sends Little
+Girl to her grandmother.
+
+#### Hunter
+The hunter sees a little girl with a basket in the forest. He approaches her
+to warn her of the Big Bad Wolf.
+```
 
 <!--
 vim: tw=78
