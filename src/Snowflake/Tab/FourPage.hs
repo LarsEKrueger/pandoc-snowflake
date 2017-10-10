@@ -23,8 +23,9 @@ tabFourPage db = do
     ]
   where
   rows onePage fourPage =
-    map mkrow $ zip (filter isBlk $ secContent onePage)
+    zipWith mkrow (filter isBlk $ secContent onePage)
       (map secContent $ filter (not . isBlk) $ secContent fourPage)
-  mkrow :: (Element,[Element]) -> [TableCell]
-  mkrow (p@(Blk para),cont) = [flattenElement p,concatMap flattenElement cont]
-  mkrow _                   = []
+  mkrow :: Element -> [Element]  -> [TableCell]
+  mkrow  p@(Blk para) cont = [flattenElement p,concatMap flattenElement cont]
+  mkrow _ _                = []
+
