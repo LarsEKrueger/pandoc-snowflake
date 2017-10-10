@@ -26,6 +26,7 @@ where
 
 import           Data.Aeson
 import qualified Data.ByteString.Lazy   as B
+import           Data.List              as L
 import           Text.Pandoc.Definition
 import           Text.Pandoc.JSON       as J
 import           Text.Pandoc.Shared
@@ -49,13 +50,17 @@ makeMainMenu db = makeMenu db "mainmenu"
     , ("Scenes", tabScenes db)
     ]
 
+isnotDesign :: Element -> Bool
+isnotDesign (Blk _)                = False
+isnotDesign (Sec _ _ (id,_,_) _ _) = not $ L.isPrefixOf "design" id
+
 main :: IO ()
 main = do
   txt <- B.getContents
   let (Pandoc inMeta inBlocks) = (either error id $ eitherDecode' txt) :: Pandoc
       db = buildDatabase inBlocks
       outBlocks = makeMainMenu db ++
-                  flattenMaybeElement ( findSection db ["timeline"]) ++
-                  flattenMaybeElement ( findSection db ["chapters"])
+                  concatMap flattenElement notDesignSections
+      notDesignSections = filter isnotDesign db
 
   B.putStr $ encode $ Pandoc inMeta outBlocks
