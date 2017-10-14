@@ -241,6 +241,11 @@ The hunter sees a little girl with a basket in the forest. He approaches her
 to warn her of the Big Bad Wolf.
 ```
 
+If you write a complicated story and need to keep track of where characters
+are at which place in which scene, you can use the `pandoc-narrative-charts`
+filter to generate such a chart. Add the chart events to the scene sections
+and add the plot in a top-level section.
+
 <!--
 vim: tw=78
 -->
