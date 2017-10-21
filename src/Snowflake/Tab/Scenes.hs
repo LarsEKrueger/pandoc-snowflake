@@ -48,7 +48,7 @@ tabScenes db = do
       (filter (not.isBlk) $ secContent scenes)
 
   mkrow :: (Element,Element) -> [TableCell]
-  mkrow (fp@(Sec {}),sc@(Sec {})) =
+  mkrow (fp@Sec {},sc@Sec {}) =
     [concatMap flattenElement $ secContent fp
     ,concatMap flattenElement $ secContent sc]
   mkrow _ = []
