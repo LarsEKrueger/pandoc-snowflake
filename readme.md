@@ -246,6 +246,11 @@ are at which place in which scene, you can use the `pandoc-narrative-charts`
 filter to generate such a chart. Add the chart events to the scene sections
 and add the plot in a top-level section.
 
+You might also want to link to the intermediate or final scenes (steps 9 and
+10) using `pandoc-vimwiki` until the full vimwiki parser becomes part of
+pandoc. Another option is to use `pandoc-include` and maintain the links
+manually.
+
 <!--
 vim: tw=78
 -->
