@@ -36,9 +36,16 @@ type MenuContent = Maybe [Block]
 
 makeMenu :: Database -> String -> [(String,MenuContent)] -> [Block]
 makeMenu db menuId sectionGenerators =
-  Div (menuId,["menubar"],[])
-    (map fst sections)
-  : map snd sections
+  ( Div (menuId,["menubar"],[])
+      (map fst sections)
+    : map snd sections
+  ) ++
+  [ RawBlock (Format "HTML") ("<script>"
+    ++ "var id=localStorage.getItem('" ++ menuId ++ "');"
+    ++ "if (id) {"
+    ++ "selectMenu('"++menuId++"',id);"
+    ++ "}</script>")
+  ]
   where
   sections = map (mkSection menuId db) $ zip [0..] sectionGenerators
 

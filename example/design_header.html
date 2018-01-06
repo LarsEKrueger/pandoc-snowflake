@@ -62,6 +62,7 @@ function selectMenu(name,ind)
   var activeBody=document.getElementById(name+"." + ind);
   activeBody.className="bodyshow";
   menu.children[ind].className="select";
+  localStorage.setItem(name,ind);
 }
 
 </script>

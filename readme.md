@@ -251,6 +251,47 @@ You might also want to link to the intermediate or final scenes (steps 9 and
 pandoc. Another option is to use `pandoc-include` and maintain the links
 manually.
 
+# Developer Information
+
+This section contains information for those brave souls who want to dive into
+the source of the filter.
+
+## HTML menu mechanism
+
+The menus are rendered using CSS from the following DOM
+
+```
+<div id="mainmenu">
+  <span>Item 1</span>
+  <span>Item 2</span>
+  <span>Item 3</span>
+</div>
+<div id="mainmenu.0">
+</div>
+<div id="mainmenu.1">
+</div>
+<div id="mainmenu.2">
+</div>
+```
+
+The first `div` renders the menu bar. The `span` elements are the menu items.
+The following `div` elements contain the content that is associated with each
+menu item.
+
+The ids adhere to the pattern above: `mainmenu` is the base name of the menu,
+`mainmenu.<i>` is used to find the content `div` of the respective menu item.
+Every menu needs to have a unique base name.
+
+Switching the menu items is performed by the function `selectMenu` that is
+distributed in the file `example/design_header.html`. This function sets all
+bodies to class `bodyhide` and all menu items to empty classes. After that, it
+sets the selected body to class `bodyshow` and the menu item to class
+`select`. The invisibility is then acomplished by CSS.
+
+The persistence of a menu selection is done by storing the selected index in
+`localStorage`. The key is the base name of the menu. A small script after
+each menu calls `selectMenu` with the stored number.
+
 <!--
 vim: tw=78
 -->
