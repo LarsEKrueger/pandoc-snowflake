@@ -1,0 +1,63 @@
+# Design
+
+## Premise
+
+## Internal Conflict
+
+## External Conflict
+
+## Twist
+
+## One Paragraph Summary
+
+## Characters
+
+@OVERVIEWLINKS@
+
+## One Page Summary
+
+## Character Synopsis
+
+@SYNOPSISLINKS@
+
+## Four Page Summary
+
+### Act 1
+
+### Act 2a
+
+### Act 2b
+
+### Act 3
+
+## Character Details
+
+@DETAILLINKS@
+
+## Scenes
+
+### Act 1
+
+### Act 2a
+
+### Act 2b
+
+### Act 3
+
+# Timeline
+
+```narcha-plot
+nameHeight: 10
+eventGrid: 75
+nameLen: 75
+left: 100
+bottom: 200
+```
+# Other Info
+
+# TODO
+
+# Chapters
+
+<!-- vim: spelllang=@LANG@
+-->

@@ -1,0 +1,50 @@
+body { margin: 5%; text-align: justify; font-size: medium; font-family: sans-serif; }
+code { font-family: monospace; }
+h1 { text-align: left; }
+h2 { text-align: left; }
+h3 { text-align: left; }
+h4 { text-align: left; }
+h5 { text-align: left; }
+h6 { text-align: left; }
+h1.title { }
+h2.author { }
+h3.date { }
+ol.toc { padding: 0; margin-left: 1em; }
+ol.toc li { list-style-type: none; margin: 0; padding: 0; }
+a.footnoteRef { vertical-align: super; }
+em, em em em, em em em em em { font-style: italic;}
+em em, em em em em { font-style: normal; }
+
+div.diary {
+  background: #ffe;
+  font-family: serif;
+  font-style: italic;
+}
+div.diary em {
+  text-decoration: underline;
+}
+
+div.fix {
+  padding:1em;
+  background:#fee;
+  overflow:auto;
+  margin:0px;
+}
+
+div.fix + div.fix {
+  margin-top: 1em;
+  padding-top: 0px;
+}
+
+div.fix p {
+  margin:0px;
+}
+
+div.fix p:first-child {
+  float:right;
+  width: 25%;
+  text-align: justify;
+  padding:1em;
+  background:#eee;
+}
+

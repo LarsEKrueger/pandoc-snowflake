@@ -12,6 +12,19 @@ build-type:          Simple
 extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
 
+data-files:
+  skeleton/book.mdwiki,
+  skeleton/design.mdwiki,
+  skeleton/details.mdwiki,
+  skeleton/include/book_header.html,
+  skeleton/include/design_header.html,
+  skeleton/include/epub.css,
+  skeleton/Makefile,
+  skeleton/overview.mdwiki
+  skeleton/synopsis.mdwiki
+  skeleton/title.mdwiki
+
+
 source-repository this
   type: git
   location: https://github.com/LarsEKrueger/pandoc-snowflake.git
@@ -20,20 +33,32 @@ source-repository this
 executable pandoc-snowflake
   main-is:             Main.hs
   other-modules:       Snowflake.Content,
-                       Snowflake.Database,
-                       Snowflake.Menu,
-                       Snowflake.Tab.Overview,
-                       Snowflake.Tab.Synopsis,
-                       Snowflake.Tab.Details,
-                       Snowflake.Tab.Scenes,
-                       Snowflake.Tab.FourPage
+                      Snowflake.Database,
+                      Snowflake.Menu,
+                      Snowflake.Tab.Overview,
+                      Snowflake.Tab.Synopsis,
+                      Snowflake.Tab.Details,
+                      Snowflake.Tab.Scenes,
+                      Snowflake.Tab.FourPage
   -- other-extensions:    
   build-depends:       base >=4.9 && <4.10,
-                       pandoc-types >= 1.16 && < 1.18,
-                       bytestring == 0.10.*,
-                       aeson == 1.0.*,
-                       pandoc == 1.19.*,
-                       containers == 0.5.*,
-                       pretty-show == 1.6.*
+                      pandoc-types >= 1.16 && < 1.18,
+                      bytestring == 0.10.*,
+                      aeson == 1.0.*,
+                      pandoc == 1.19.*,
+                      containers == 0.5.*,
+                      pretty-show == 1.6.*
   hs-source-dirs:      src
   default-language:    Haskell2010
+
+executable psf-init
+  main-is:             Main.hs
+  build-depends:       base >=4.9 && <4.10,
+                       haskeline >= 0.7,
+                       directory >= 1.3,
+                       filepath >= 1.4,
+                       text >= 1.2,
+                       filemanip >= 0.3
+  hs-source-dirs:      src/psf-init
+  default-language:    Haskell2010
+
