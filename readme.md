@@ -48,6 +48,97 @@ and a PDF) from your novel, you can generate all those with one command.
 
 If you use multiple filters, it is recommended to put `pandoc-snowflake` last.
 
+## Simplified Setup using `psf-init`
+
+Along with the `pandoc` filter itself, a helper program (`psf-init`) and some
+data files are installed that make the creation of Snowflake writing projects
+simpler.
+
+`psf-init` is meant to be run in an empty directory. It will ask for the
+following items:
+* language code
+* project name
+* character names
+
+From these inputs, it will create a correctly linked `VimWiki` document and a
+`Makefile` that will compile the design document as HTML and the final book as
+HTML, EPUB, and possibly `.mobi`.
+
+The program will create the following `VimWiki` files:
+* `book.mdwiki`
+  The markdown document for the final book.
+* `design.mdwiki`
+  The markdown document for the design HTML.
+* `title.mdwiki`
+  The markdown document for title and author, used by the two files above.
+
+The inputs will not be checked and will only be sanitized sparingly. As
+such, make sure to enter them as described in the following sections.
+
+### Language code
+The language code will be used for the `Vim`
+[modeline](http://vimdoc.sourceforge.net/htmldoc/options.html#modeline) in
+every generated file and should be a valid language code understood by
+[spelllang](http://vimdoc.sourceforge.net/htmldoc/options.html#'spelllang').
+
+Be advised that the string will not be sanitized. This might constitute a
+security issue if the document is not checked properly before opening it in
+`vim`.
+
+### Project Name
+The project name will be used as part of the generated file names. It will be
+stripped of any non-alphanumeric characters and converted to lowercase.
+Assuming the string `my project%5` was entered, the files
+* `output/design_myproject5.html`
+* `output/book_myproject5.html`
+* `output/myproject5.epub`
+* `output/myproject5.mobi`
+
+will be created.
+
+### Character Names
+
+The program will ask for character names until an empty string is entered.
+Each name will be used in lower case, but otherwise unsanitized, for the names
+of the following files:
+* `character/<name>_overview.mdwiki`
+* `character/<name>_details.mdwiki`
+* `character/<name>_synopsis.mdwiki`
+
+Here, `<name>` stands for the entered name in lower case. The name as entered
+will be inserted into the files. The character files will be linked to in the
+order as entered.
+
+### Generated `Makefile`
+
+The following commands create the output files:
+|Command        |Output File|
+|`make`         |Design HTML|
+|`make design`  |Design HTML|
+|`make html`    |Book HTML|
+|`make epub`    |Book EPUB|
+|`make mobi`    |Book MOBI (for Kindle)|
+|`make all`     |All of the above|
+
+The various targets can be combined (e.g. `make design epub`).
+
+To use e.g. 3 cores, call `make -j 3 all`. This is the maximum parallelism,
+this particular setup can exploit.
+
+Be sure to add any other linked files (e.g. chapters) to the variable `DEPS`
+in `Makefile`. Refer to the [GNU Make
+Manual](https://www.gnu.org/software/make/manual/make.html#toc-An-Introduction-to-Makefiles)
+for the exact syntax.
+
+### File Safety and Repeated Runs
+`psf-init` will not overwrite any files when run multiple files. It can be
+(ab)used to add characters to an existing project from the template. In this case, the project name
+will be ignored (as it is not used in the character templates) and can be
+chosen at will. The remaining rules are the same as stated above.
+
+In this case, the newly created character files need to be linked manually to
+`design.mdwiki`, `book.mdwiki`, and `Makefile`.
+
 # Structure of the Input Document
 The input document as read by `pandoc-snowflake` is to be structured in the
 following way. If you use other filters, ensure that they output the structure
