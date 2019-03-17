@@ -97,9 +97,9 @@ main = do
   createDirectoryIfMissing False "characters"
   namelists <- forM characters $ \charname -> do
     let lcCharName = map toLower charname
-        overview_filename = "characters" </> (lcCharName ++ "_overview.mdwiki")
-        details_filename = "characters" </> (lcCharName ++ "_details.mdwiki")
-        synopsis_filename = "characters" </> (lcCharName ++ "_synopsis.mdwiki")
+        overview_filename = "characters/" ++ lcCharName ++ "_overview.mdwiki"
+        details_filename = "characters/" ++ lcCharName ++ "_details.mdwiki"
+        synopsis_filename = "characters/" ++ lcCharName ++ "_synopsis.mdwiki"
         overview_markup = "{{characters/" ++ lcCharName ++ "_overview}}"
         details_markup = "{{characters/" ++ lcCharName ++ "_details}}"
         synopsis_markup = "{{characters/" ++ lcCharName ++ "_synopsis}}"
