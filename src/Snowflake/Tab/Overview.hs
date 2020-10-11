@@ -41,12 +41,16 @@ tabOverview db = do
   twist <- findSection db ["design","twist"]
   onePage <- findSection db ["design","one-page-summary"]
   charBase <- findSection db ["design","characters"]
+  onePara <- findSection db ["design", "one-paragraph-summary"]
   return $
     (
     Table [] [AlignLeft,AlignLeft] [0.5,0.5] []
       [[titledSection 3 premise "Premise", titledSection 3 intConf "Internal Conflict"]
       ,[titledSection 3 twist "Twist",     titledSection 3 extConf "External Conflict"]
       ]
+    :
+    Table [] [AlignLeft] [1.0] []
+      [[titledSection 3 onePara "One Paragraph Summary"]]
     : makeMenu db "charBase" ( mapMaybe contentCharBase $ secContent charBase)
     )
     ++ titledSection 3 onePage "One Page Summary"
