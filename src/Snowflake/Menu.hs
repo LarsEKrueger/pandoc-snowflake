@@ -1,72 +1,78 @@
 {-
-Copyright (c) 2017 Lars Krueger
+    Pandoc filter for the Snowflake Writing Method
+    Copyright (c) 2017 Lars Krueger
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Snowflake.Menu
 ( makeMenu
 , MenuContent
 ) where
 
 import           Data.Maybe
+import Data.List as L
+import Data.Text as T
+import Data.String
 
 import           Text.Pandoc.Definition
-
 import           Snowflake.Database
 
 type MenuContent = Maybe [Block]
 
-makeMenu :: Database -> String -> [(String,MenuContent)] -> [Block]
+makeMenu :: Database -> Text -> [(Text,MenuContent)] -> [Block]
 makeMenu db menuId sectionGenerators =
   ( Div (menuId,["menubar"],[])
-      (map fst sections)
-    : map snd sections
+      (L.map fst sections)
+    : L.map snd sections
   ) ++
-  [ RawBlock (Format "HTML") ("<script>"
-    ++ "var id=localStorage.getItem('" ++ menuId ++ "');"
-    ++ "if (id) {"
-    ++ "selectMenu('"++menuId++"',id);"
-    ++ "}</script>")
+  [ RawBlock (Format "HTML") (T.concat 
+      [ "<script>"
+      , "var id=localStorage.getItem('"
+      , menuId
+      , "');"
+      , "if (id) {"
+      , "selectMenu('"
+      , menuId
+      , "',id);"
+      , "}</script>"
+      ])
   ]
   where
-  sections = map (mkSection menuId db) $ zip [0..] sectionGenerators
+  sections = L.map (mkSection menuId db) $ L.zip [0..] sectionGenerators
 
-mkSection :: String -> Database -> (Int,(String,MenuContent)) -> (Block,Block)
+mkSection :: Text -> Database -> (Int,(Text,MenuContent)) -> (Block,Block)
 mkSection id db (ind,(headline,content)) =
   ( RawBlock (Format "HTML") menuItemMarkup
   , Div ( divId, [ divClass ], []) secCont
   )
   where
-  indStr = show ind
-  divId = id ++ "." ++ indStr
+  indStr = fromString $ show ind
+  divId = T.concat [ id, ".", indStr]
   divClass = if ind == 0 then "bodyshow" else "bodyhide"
   spanClass = if ind == 0 then "select" else ""
-  menuItemMarkup =
-    "<span class=\""
-    ++ spanClass
-    ++ "\" onclick=\"selectMenu('"
-    ++ id
-    ++ "',"
-    ++ indStr
-    ++ ")\">"
-    ++ headline
-    ++ "</span>"
+  menuItemMarkup = T.concat
+    [ "<span class=\""
+    , spanClass
+    , "\" onclick=\"selectMenu('"
+    , id
+    , "',"
+    , indStr
+    , ")\">"
+    , headline
+    , "</span>"
+    ]
   secCont = fromMaybe [Plain [Str "content generation failure"]] content

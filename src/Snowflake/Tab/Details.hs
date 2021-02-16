@@ -1,31 +1,30 @@
 {-
-Copyright (c) 2017 Lars Krueger
+    Pandoc filter for the Snowflake Writing Method
+    Copyright (c) 2017 Lars Krueger
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Snowflake.Tab.Details
 ( tabCharDet
 ) where
 
 import           Data.Maybe
+import Data.List as L
+import Data.Text as T
 import           Text.Pandoc.Definition
 import           Text.Pandoc.Shared
 
@@ -39,7 +38,7 @@ tabCharDet db = do
   return $
     makeMenu db "charDet" $ mapMaybe contentCharDet $ secContent charBase
 
-contentCharDet :: Element -> Maybe (String,MenuContent)
+contentCharDet :: Element -> Maybe (Text,MenuContent)
 contentCharDet (Blk _) = Nothing
 contentCharDet char =
   if headline == "Character"
@@ -47,8 +46,13 @@ contentCharDet char =
      else Just (headline,Just [content])
   where
   headline = inlinesToString $ secHeadline char
-  content = Div ("",["charDetTab"],[]) [Table [] [AlignLeft,AlignLeft] [0.0, 0.0] [] rows]
-  rows = filter emptyRow $ map sec2row $ secContent char
+  content = Div ("",["charDetTab"],[]) [
+     buildTable2 rows
+   ]
+  rows = L.map (\(Just (headline, para)) -> [[headline], para])
+     $ L.filter isJust
+     $ L.map sec2row
+     $ secContent char
 
 emptyRow :: [[Block]] -> Bool
 emptyRow []     = False
@@ -57,8 +61,8 @@ emptyRow [_,[]] = False
 emptyRow [_,_]  = True
 emptyRow _      = False
 
-sec2row :: Element -> [[Block]]
-sec2row (Blk _) = []
-sec2row (Sec _ _ _ headline cont) =
-  [[Plain headline],
-   stripSingleParagraph $ concatMap flattenElement cont]
+sec2row :: Element -> Maybe (Block, [Block])
+sec2row (Blk _) = Nothing
+sec2row (Sec _ _ _ headline cont) = Just
+  (Plain headline,
+   stripSingleParagraph $ L.concatMap flattenElement cont)

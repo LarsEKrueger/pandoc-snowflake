@@ -1,26 +1,23 @@
 {-
-Copyright (c) 2017 Lars Krueger
+    Pandoc filter for the Snowflake Writing Method
+    Copyright (c) 2017 Lars Krueger
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Snowflake.Database
 ( buildDatabase
 , Database(..)
@@ -31,12 +28,20 @@ module Snowflake.Database
 , secContent
 , secHeadline
 , isBlk
+, Element(..)
 ) where
 
-import           Data.List
+import           Data.List as L
+import           Data.Text as T
 
 import           Text.Pandoc.Definition
 import           Text.Pandoc.Shared
+import qualified Control.Monad.State.Strict as S
+
+data Element = Blk Block
+             | Sec Int [Int] Attr [Inline] [Element]
+             --    lvl  num attributes label    contents
+             deriving (Eq, Read, Show)
 
 type Database = [Element]
 
@@ -55,7 +60,7 @@ type Stack = [[Element]]
 -- concerned with stopping criteria only.
 unwind :: Stack -> [Element] -> [Element]
 unwind [] []    = []
-unwind [tos] [] = reverse tos
+unwind [tos] [] = L.reverse tos
 unwind stack [] = unwind (unwind1 stack) []
 unwind stack es = rebuildTree (unwind1 stack) es
 
@@ -68,9 +73,9 @@ unwind stack es = rebuildTree (unwind1 stack) es
 -- number of clauses of unwind.
 unwind1 :: Stack -> Stack
 unwind1 [tos , Sec d ident attr cont blkChildren : brothers] =
-  [ Sec d ident attr cont (blkChildren ++ reverse tos) : brothers]
+  [ Sec d ident attr cont (blkChildren ++ L.reverse tos) : brothers]
 unwind1 (tos:(Sec d ident attr cont blkChildren : brothers):bos) =
-  (Sec d ident attr cont (blkChildren ++ reverse tos) : brothers) : bos
+  (Sec d ident attr cont (blkChildren ++ L.reverse tos) : brothers) : bos
 unwind1 _ = undefined -- This case should not happen, but makes the compiler happy.
 
 -- | Rebuild the tree from the flattened list of sections. It processes each
@@ -100,13 +105,45 @@ rebuildTree [] (sec@Sec{} : es) = rebuildTree [[sec]] es
 rebuildTree stack@[tpb@(tos@(Sec pd _ _ _ _):brothers)] (sec@(Sec d _ _ _ _) : es)
   | d > pd = rebuildTree ([sec]:stack) es
   | d == pd = rebuildTree [sec:tos:brothers] es
-  | otherwise = reverse tpb ++ rebuildTree [[sec]] es
+  | otherwise = L.reverse tpb ++ rebuildTree [[sec]] es
 rebuildTree stack@((tos@(Sec pd _ _ _ _):brothers):bos) (sec@(Sec d _ _ _ _) : es)
   | d > pd = rebuildTree ([sec]:stack) es
   | d == pd = rebuildTree ((sec:tos:brothers):bos) es
   | otherwise = unwind stack (sec:es)
 
 rebuildTree _ _ = undefined -- These cases should not happen.
+
+headerLtEq :: Int -> Block -> Bool
+headerLtEq level (Header l _ _)                                  = l <= level
+headerLtEq level (Div ("",["references"],[]) (Header l _ _ : _)) = l <= level
+headerLtEq _ _                                                   = False
+
+-- | Convert list of Pandoc blocks into (hierarchical) list of Elements
+hierarchicalize :: [Block] -> [Element]
+hierarchicalize blocks = S.evalState (hierarchicalizeWithIds blocks) []
+
+hierarchicalizeWithIds :: [Block] -> S.State [Int] [Element]
+hierarchicalizeWithIds [] = return []
+hierarchicalizeWithIds (Header level attr@(_,classes,_) title':xs) = do
+  lastnum <- S.get
+  let lastnum' = L.take level lastnum
+  let newnum = case L.length lastnum' of
+                    x | "unnumbered" `elem` classes -> []
+                      | x >= level -> L.init lastnum' ++ [L.last lastnum' + 1]
+                      | otherwise -> lastnum ++
+                           L.replicate (level - L.length lastnum - 1) 0 ++ [1]
+  S.unless (L.null newnum) $ S.put newnum
+  let (sectionContents, rest) = L.break (headerLtEq level) xs
+  sectionContents' <- hierarchicalizeWithIds sectionContents
+  rest' <- hierarchicalizeWithIds rest
+  return $ Sec level newnum attr title' sectionContents' : rest'
+hierarchicalizeWithIds (Div ("refs",classes',kvs')
+                         (Header level (ident,classes,kvs) title' : xs):ys) =
+  hierarchicalizeWithIds (Header level (ident,"references":classes,kvs)
+                           title' : Div ("refs",classes',kvs') xs : ys)
+hierarchicalizeWithIds (x:rest) = do
+  rest' <- hierarchicalizeWithIds rest
+  return $ Blk x : rest'
 
 
 -- | Build the tree of sections from a list of blocks
@@ -116,7 +153,7 @@ buildDatabase = rebuildTree [] . hierarchicalize
 -- | Convert an Element back to a list of blocks
 flattenElement :: Element -> [Block]
 flattenElement (Blk b) = [b]
-flattenElement (Sec depth prefix attr headline bodyelem) = Header depth attr headline : concatMap flattenElement bodyelem
+flattenElement (Sec depth prefix attr headline bodyelem) = Header depth attr headline : L.concatMap flattenElement bodyelem
 
 -- | Convert a Maybe Element back to a list of blocks
 flattenMaybeElement :: Maybe Element -> [Block]
@@ -124,29 +161,29 @@ flattenMaybeElement = maybe [] flattenElement
 
 -- | Find an element in a tree of Elements from a string of section names that
 -- indicate a path through the tree
-findSection :: Database -> [String] -> Maybe Element
+findSection :: Database -> [Text] -> Maybe Element
 findSection _ [] = Nothing
 findSection [] _ = Nothing
 findSection (Blk _ : es ) needle = findSection es needle
 findSection (s@(Sec _ _ (id,_,_)  _ sub) : es ) needles@[needle1] =
-  if needle1 `isPrefixOf` id
+  if needle1 `T.isPrefixOf` id
      then Just s
      else findSection es needles
 findSection (s@(Sec _ _ (id,_,_)  _ sub) : es ) allNeedles@(needle1:needles) =
-  if needle1 `isPrefixOf` id
+  if needle1 `T.isPrefixOf` id
      then findSection sub needles
      else findSection es allNeedles
 
 -- | Same as findSection, but returns an error message instead of failing
-dbgFindSection :: Database -> [String] -> Maybe Element
+dbgFindSection :: Database -> [Text] -> Maybe Element
 dbgFindSection db needles =
   case findSection db needles of
        Nothing -> Just errSec
        x       -> x
   where
   errSec = Sec 0 [] ("",[],[]) []
-             [ Blk (Para $ normalizeInlines [ Str errMsg ])]
-  errMsg = "Search key not found: " ++ intercalate ", " needles
+             [ Blk (Para [ Str errMsg ])]
+  errMsg = T.append "Search key not found: " $ T.intercalate ", " needles
 
 
 secContent :: Element -> [Element]

@@ -1,32 +1,30 @@
 {-
-Copyright (c) 2017 Lars Krueger
+    Pandoc filter for the Snowflake Writing Method
+    Copyright (c) 2017 Lars Krueger
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Main
 where
 
 import           Data.Aeson
 import qualified Data.ByteString.Lazy   as B
 import           Data.List              as L
+import           Data.Text              as T
 import           Text.Pandoc.Definition
 import           Text.Pandoc.JSON       as J
 import           Text.Pandoc.Shared
@@ -52,7 +50,7 @@ makeMainMenu db = makeMenu db "mainmenu"
 
 isnotDesign :: Element -> Bool
 isnotDesign (Blk _)                = False
-isnotDesign (Sec _ _ (id,_,_) _ _) = not $ L.isPrefixOf "design" id
+isnotDesign (Sec _ _ (id,_,_) _ _) = not $ T.isPrefixOf "design" id
 
 main :: IO ()
 main = do
@@ -60,7 +58,7 @@ main = do
   let (Pandoc inMeta inBlocks) = (either error id $ eitherDecode' txt) :: Pandoc
       db = buildDatabase inBlocks
       outBlocks = makeMainMenu db ++
-                  concatMap flattenElement notDesignSections
-      notDesignSections = filter isnotDesign db
+                  L.concatMap flattenElement notDesignSections
+      notDesignSections = L.filter isnotDesign db
 
   B.putStr $ encode $ Pandoc inMeta outBlocks

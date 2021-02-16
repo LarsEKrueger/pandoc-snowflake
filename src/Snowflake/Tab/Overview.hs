@@ -1,31 +1,29 @@
 {-
-Copyright (c) 2017 Lars Krueger
+    Pandoc filter for the Snowflake Writing Method
+    Copyright (c) 2017 Lars Krueger
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Snowflake.Tab.Overview
 ( tabOverview
 ) where
 
 import           Data.Maybe
+import           Data.Text
 import           Text.Pandoc.Definition
 import           Text.Pandoc.Shared
 
@@ -44,18 +42,17 @@ tabOverview db = do
   onePara <- findSection db ["design", "one-paragraph-summary"]
   return $
     (
-    Table [] [AlignLeft,AlignLeft] [0.5,0.5] []
+      buildTable2
       [[titledSection 3 premise "Premise", titledSection 3 intConf "Internal Conflict"]
       ,[titledSection 3 twist "Twist",     titledSection 3 extConf "External Conflict"]
       ]
-    :
-    Table [] [AlignLeft] [1.0] []
-      [[titledSection 3 onePara "One Paragraph Summary"]]
+    : buildTable2
+      [[titledSection 3 onePara "One Paragraph Summary"],[]]
     : makeMenu db "charBase" ( mapMaybe contentCharBase $ secContent charBase)
     )
     ++ titledSection 3 onePage "One Page Summary"
 
-contentCharBase :: Element -> Maybe (String,MenuContent)
+contentCharBase :: Element -> Maybe (Text,MenuContent)
 contentCharBase (Blk _) = Nothing
 contentCharBase char =
   if headline == "Character"
@@ -74,7 +71,7 @@ contentCharBase char =
     oneParagraph <- dbgFindSection db ["one-paragraph-summary"]
 
     return
-      ( Table [] [AlignLeft,AlignLeft] [0.5,0.5] []
+      ( buildTable2 
           [[titledSection 4 role "Role"
            ,titledSection 4 oneSentence "One-sentence Summary"]
           ,[titledSection 4 goal "Goal"
