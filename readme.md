@@ -1,4 +1,6 @@
-# Introduction
+# Snowflake - A pandoc filter for the Snowflake Writing Method
+
+## Introduction
 This module provides a filter for [pandoc](https://www.pandoc.org) that can be
 used to create an interactive HTML page for the [Snowflake
 Method](https://www.advancedfictionwriting.com/articles/snowflake-method) of novel writing.
@@ -20,10 +22,32 @@ current step (e.g. step 4) in a text editor. This ensures even slow computers
 (e.g. subnotebooks/tablets) can provide a pleasant working environment.
 
 This document assumes that you installed pandoc and this filter such that both
-executables can be found in the program search path. Use [stack for
-Windows/Linux/macOS](https://docs.haskellstack.org/en/stable/GUIDE/) or
-[cabal](https://wiki.haskell.org/Cabal/How_to_install_a_Cabal_package) to
-install either program.
+executables can be found in the program search path.
+
+## Installation
+
+This module is compatible with pandoc 2.11 and stack lts-17.4.
+
+### Prerequisistes
+
+* A working [Haskell installation](https://www.haskell.org/), either via
+  [cabal](https://www.haskell.org/downloads/#platform) or
+  [stack](https://www.haskell.org/downloads/#stack)
+
+### Build and install
+
+* Get the source code. Either
+  * clone this repository or
+  * download and extract the ZIP
+* Go to the source code directory
+* Run either
+  * `cabal install` or
+  * `stack init` followed by `stack install`
+
+The installation might take some time due to the size and number of
+dependencies.
+
+
 
 # Setup of the Export Pipeline
 This sections explains how to call pandoc to create the HTML app. We assume
