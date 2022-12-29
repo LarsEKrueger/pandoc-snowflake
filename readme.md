@@ -26,7 +26,7 @@ executables can be found in the program search path.
 
 ## Installation
 
-This module is compatible with pandoc 2.11 and stack lts-17.4.
+This module is compatible with pandoc 2.14 and stack lts-18.28.
 
 ### Prerequisistes
 

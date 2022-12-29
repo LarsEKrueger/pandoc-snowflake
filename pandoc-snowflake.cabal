@@ -45,7 +45,7 @@ executable pandoc-snowflake
   build-depends:       base >=4.9 && <5,
                        mtl >= 2.2,
                        pandoc-types == 1.22.*,
-                       pandoc == 2.11.*,
+                       pandoc >= 2.11,
                        bytestring == 0.10.*,
                        aeson == 1.5.*,
                        containers >= 0.5,
