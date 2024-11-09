@@ -37,6 +37,7 @@ import           Data.Text as T
 import           Text.Pandoc.Definition
 import           Text.Pandoc.Shared
 import qualified Control.Monad.State.Strict as S
+import qualified Control.Monad as CM
 
 data Element = Blk Block
              | Sec Int [Int] Attr [Inline] [Element]
@@ -128,11 +129,11 @@ hierarchicalizeWithIds (Header level attr@(_,classes,_) title':xs) = do
   lastnum <- S.get
   let lastnum' = L.take level lastnum
   let newnum = case L.length lastnum' of
-                    x | "unnumbered" `elem` classes -> []
+                    x | "unnumbered" `L.elem` classes -> []
                       | x >= level -> L.init lastnum' ++ [L.last lastnum' + 1]
                       | otherwise -> lastnum ++
                            L.replicate (level - L.length lastnum - 1) 0 ++ [1]
-  S.unless (L.null newnum) $ S.put newnum
+  CM.unless (L.null newnum) $ S.put newnum
   let (sectionContents, rest) = L.break (headerLtEq level) xs
   sectionContents' <- hierarchicalizeWithIds sectionContents
   rest' <- hierarchicalizeWithIds rest

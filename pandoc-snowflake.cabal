@@ -1,5 +1,5 @@
 name:                pandoc-snowflake
-version:             0.3.0.1
+version:             0.3.0.2
 synopsis:            A pandoc filter to support the Snowflake writing method
 description:         Creates part of an HTML app
 license:             GPL-2
@@ -28,7 +28,7 @@ data-files:
 source-repository this
   type: git
   location: https://github.com/LarsEKrueger/pandoc-snowflake.git
-  tag: v_0.3.0.1
+  tag: v_0.3.0.2
 
 executable pandoc-snowflake
   main-is:             Main.hs
@@ -44,10 +44,10 @@ executable pandoc-snowflake
   -- other-extensions:    
   build-depends:       base >=4.9 && <5,
                        mtl >= 2.2,
-                       pandoc-types == 1.22.*,
-                       pandoc >= 2.11,
-                       bytestring == 0.10.*,
-                       aeson == 1.5.*,
+                       pandoc-types == 1.23.*,
+                       pandoc >= 3,
+                       bytestring == 0.11.*,
+                       aeson >= 2,
                        containers >= 0.5,
                        text >= 1.2,
                        pretty-show >= 1.6
